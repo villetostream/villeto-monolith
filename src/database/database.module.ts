@@ -11,7 +11,7 @@ import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-clas
         ...((await dataSource).options as DataSourceOptions),
         autoLoadEntities: true,
       }),
-      dataSourceFactory: async () => dataSource.initialize(),
+      // dataSourceFactory: async () => dataSource.initialize(),
     }),
   ],
 })
