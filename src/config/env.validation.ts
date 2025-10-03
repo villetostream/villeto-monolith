@@ -11,14 +11,15 @@ export function validateEnvVariables(
     skipMissingProperties: false,
   });
   if (errors.length > 0) {
-    const errorMessages = errors
-      .map((error) => {
-        const constraints = Object.values(error.constraints || {});
-        const property = error.property;
-        const message = `${property} has wrong value ${error.value}, ${constraints.join(', ')}`;
-        return message;
-      })
-    throw new Error(`\nInvalid environment variables: \n\n${errorMessages.join('\n')}`);
+    const errorMessages = errors.map((error) => {
+      const constraints = Object.values(error.constraints || {});
+      const property = error.property;
+      const message = `${property} has wrong value ${error.value}, ${constraints.join(', ')}`;
+      return message;
+    });
+    throw new Error(
+      `\nInvalid environment variables: \n\n${errorMessages.join('\n')}`,
+    );
   }
   return validatedConfig;
 }
