@@ -4,7 +4,8 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 config();
 
 const isProd = process.env.NODE_ENV === 'production';
-const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev';
+const isDev =
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'dev';
 
 const dataSourceOption: DataSourceOptions = {
   type: 'postgres',
