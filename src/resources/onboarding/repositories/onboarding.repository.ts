@@ -1,6 +1,6 @@
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, FindOptionsWhere, Repository } from 'typeorm';
 import { Onboarding } from '../entities/onboarding.entity';
-import { OnboardingStartDto } from '../dto/create-onboarding.dto';
+import { OnboardingStartDto } from '../dtos/create-onboarding.dto';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { Company } from 'src/resources/company/entities/company.entity';
 
@@ -13,7 +13,7 @@ export class OnboardingRepository {
   }
 
   async startOnboarding(dto: OnboardingStartDto) {
-    const companyRepository = await this.entityManager.getRepository(Company)
+    const companyRepository = await this.entityManager.getRepository(Company);
     const newCompany = await companyRepository.save({
       companyName: dto.companyName,
       contactFirstName: dto.contactFirstName,
@@ -25,5 +25,9 @@ export class OnboardingRepository {
     newOnboarding.company = newCompany;
     await this.onboardingRepository.save(newOnboarding);
     return newOnboarding;
+  }
+
+  async findOnboardingBy(where: FindOptionsWhere<Company>) {
+    return this.entityManager.getRepository(Company).findOneBy(where);
   }
 }

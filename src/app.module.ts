@@ -6,6 +6,7 @@ import { UsersModule } from './resources/users/users.module';
 import { ConfigModule } from './config/config.module';
 import { CompanyModule } from './resources/company/company.module';
 import { OnboardingModule } from './resources/onboarding/onboarding.module';
+import { NotificationsModule } from './resources/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OnboardingModule } from './resources/onboarding/onboarding.module';
     ConfigModule,
     CompanyModule,
     OnboardingModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

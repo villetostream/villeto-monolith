@@ -11,7 +11,14 @@ import { AccountType } from '../enums/account.enum';
 import { IsEmail, IsUrl } from 'class-validator';
 
 @Entity('companies')
-@Unique('UQ_COMPANY', ['businessName', 'taxId', 'registrationId', 'websiteUrl'])
+@Unique('UQ_COMPANY', [
+  'businessName',
+  'taxId',
+  'registrationId',
+  'websiteUrl',
+  'contactEmail',
+  'contactPhone',
+])
 export class Company extends AbstractEntity<Company> {
   @PrimaryGeneratedColumn('uuid')
   companyId: string;

@@ -11,18 +11,29 @@ import { OnboardingService } from './onboarding.service';
 import {
   CreateOnboardingDto,
   OnboardingStartDto,
-} from './dto/create-onboarding.dto';
-import { UpdateOnboardingDto } from './dto/update-onboarding.dto';
+  OnGoingOnboardingAccountConfirmationDto,
+} from './dtos/create-onboarding.dto';
+import { UpdateOnboardingDto } from './dtos/update-onboarding.dto';
 import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('onboardings')
 export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
+  @Post('account-confirmation')
+  @ApiOperation({
+    summary: 'Confirm if an oboarding is ongoing or a new onboarding',
+  })
+  confirmExistingOnboarding(
+    @Body() dto: OnGoingOnboardingAccountConfirmationDto,
+  ) {
+    return this.onboardingService.confirmOnboardingExists(dto);
+  }
+
   @Post('start')
-  @ApiOperation({ summary: 'Start the onboarding process as a first timer' })
+  @ApiOperation({ summary: 'Start a new onboarding process as a first-timer' })
   create(@Body() createOnboardingDto: OnboardingStartDto) {
-    return this.onboardingService.create(createOnboardingDto);
+    return this.onboardingService.createNewOnboarding(createOnboardingDto);
   }
 
   @Get()

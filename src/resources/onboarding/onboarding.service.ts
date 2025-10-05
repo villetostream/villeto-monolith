@@ -1,16 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  CreateOnboardingDto,
   OnboardingStartDto,
-} from './dto/create-onboarding.dto';
-import { UpdateOnboardingDto } from './dto/update-onboarding.dto';
+  OnGoingOnboardingAccountConfirmationDto,
+} from './dtos/create-onboarding.dto';
+import { UpdateOnboardingDto } from './dtos/update-onboarding.dto';
 import { OnboardingRepository } from './repositories/onboarding.repository';
+import { MailService } from '../notifications/services/mail.service';
+import { OnboardingCategory } from './enums/onboarding.category.enum';
+import { generateRandomToken } from 'src/helpers';
 
 @Injectable()
 export class OnboardingService {
-  constructor(private readonly onboardingRepository: OnboardingRepository) {}
-  create(createOnboardingDto: OnboardingStartDto) {
-    return this.onboardingRepository.startOnboarding(createOnboardingDto);
+  constructor(
+    private readonly onboardingRepository: OnboardingRepository,
+    private readonly mailService: MailService,
+  ) {}
+  async createNewOnboarding(dto: OnboardingStartDto) {
+    const newOnboarding = await this.onboardingRepository.startOnboarding(dto);
+    const token = generateRandomToken(32)
+    await this.mailService.sendUserConfirmation(
+      { name: dto.companyName, email:  dto.contactEmail},
+      token,
+    );
+    return newOnboarding;
+  }
+
+  async confirmOnboardingExists(dto: OnGoingOnboardingAccountConfirmationDto) {
+    const onboarding = await this.onboardingRepository.findOnboardingBy({
+      contactEmail: dto.email,
+    });
+
+    if (!onboarding)
+      throw new NotFoundException(
+        `Onboarding does not exist: ${OnboardingCategory.NEW}`,
+      );
+    return onboarding;
   }
 
   findAll() {
