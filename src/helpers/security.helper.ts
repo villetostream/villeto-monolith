@@ -43,4 +43,4 @@ export const isMatch = async (
 };
 
 export const generateRandomToken = (length: number) =>
-  randomBytes(length/2).toString('hex');
+  randomBytes(length / 2).toString('hex');

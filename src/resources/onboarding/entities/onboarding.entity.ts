@@ -21,7 +21,7 @@ export class Onboarding extends AbstractEntity<Onboarding> {
   @Column({ default: 1 })
   step!: number;
   @OneToOne(() => Company, (company) => company.onboarding, {
-    eager: false,
+    eager: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'companyId' })

@@ -1,8 +1,16 @@
-import { EntityManager, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  EntityManager,
+  FindManyOptions,
+  FindOneAndDeleteOptions,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { Onboarding } from '../entities/onboarding.entity';
 import { OnboardingStartDto } from '../dtos/create-onboarding.dto';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { Company } from 'src/resources/company/entities/company.entity';
+import { NotFoundException } from '@nestjs/common';
 
 export class OnboardingRepository {
   private readonly onboardingRepository: Repository<Onboarding>;
@@ -27,7 +35,17 @@ export class OnboardingRepository {
     return newOnboarding;
   }
 
-  async findOnboardingBy(where: FindOptionsWhere<Company>) {
-    return this.entityManager.getRepository(Company).findOneBy(where);
+  async findOneOnboardingBy(options: FindOneOptions<Onboarding>) {
+    return this.onboardingRepository.findOne(options);
+  }
+
+  async findAllOnboardings(options?: FindManyOptions<Onboarding>) {
+    return this.onboardingRepository.find(options);
+  }
+  async findAndDeleteOnboarding(options: FindOptionsWhere<Onboarding>) {
+    const result = await this.onboardingRepository.softDelete(options);
+    if (!result.affected)
+      throw new NotFoundException('Error deleting onboarding');
+    return result.affected;
   }
 }
