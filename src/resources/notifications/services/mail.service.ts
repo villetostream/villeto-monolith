@@ -8,7 +8,7 @@ export class MailService {
   async sendUserConfirmation(user: any, token: string) {
     const url = `example.com/auth/confirm?token=${token}`;
 
-    await this.mailerService.sendMail({
+    return await this.mailerService.sendMail({
       to: user.email,
       subject: 'Welcome to VilletoStream! Confirm your Email',
       template: 'confirmation', // The name of the template file i.e confirmation.hbs

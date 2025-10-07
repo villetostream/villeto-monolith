@@ -29,15 +29,18 @@ export class OnboardingService {
       where: { company: { contactEmail: dto.email } },
     });
 
+    console.log(dto.email, onboarding)
+
     if (!onboarding)
       throw new NotFoundException(
         `Onboarding does not exist: ${OnboardingCategory.NEW}`,
       );
     const token = onboarding.onboardingId;
-    await this.mailService.sendUserConfirmation(
+    const result = await this.mailService.sendUserConfirmation(
       { name: onboarding.companyName, email: onboarding.contactEmail },
       token,
     );
+    console.log(result)
     return ONBOARDING_EXISTS;
   }
 
