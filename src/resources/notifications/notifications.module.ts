@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
         transport: {
           host: configService.get('MAIL_HOST'),
           port: configService.get('MAIL_PORT'),
+          secure: false,
           auth: {
             user: configService.get('MAIL_USER'),
             pass: configService.get('MAIL_PASS'),
@@ -27,7 +28,7 @@ import { ConfigService } from '@nestjs/config';
           dir: join(__dirname, 'mail', 'templates'),
           adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
           options: {
-            strict: true,
+            strict: false,
           },
         },
       }),
