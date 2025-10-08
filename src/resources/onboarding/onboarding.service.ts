@@ -40,7 +40,7 @@ export class OnboardingService {
       { name: onboarding.companyName, email: onboarding.contactEmail },
       token,
     );
-    console.log(result)
+    // console.log(result)
     return ONBOARDING_EXISTS;
   }
 
