@@ -1,0 +1,11 @@
+services:
+  villeto:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+      target: builder
+    command: pnpm run start:dev
+    env_file:
+      - ./.env
+    ports:
+      - '3000:3000'
