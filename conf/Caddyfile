@@ -1,0 +1,8 @@
+# Caddyfile (local/dev)
+109.199.119.204 {
+    tls internal
+    reverse_proxy villeto:3000
+    log {
+        output file /data/dev-access.log
+    }
+}

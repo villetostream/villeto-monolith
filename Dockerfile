@@ -2,7 +2,12 @@
 FROM node:22-bullseye-slim AS builder
 
 # Set the working directory inside the container
-WORKDIR /app
+WORKDIR /usr/src/app
+
+# install ps (procps) so watcher tools that spawn `ps` work
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends procps \
+ && rm -rf /var/lib/apt/lists/*
 
 # Copy package.json and package-lock.json or pnpm-lock.yaml to the working directory
 COPY package*.json ./
@@ -20,10 +25,13 @@ COPY . .
 # Build the NestJS application
 RUN pnpm run build
 
-FROM node:22-bullseye-slim AS runner
+FROM node:22-bullseye-slim AS prod
+
+# Set the working directory inside the container
+WORKDIR /usr/src/app
 
 # Copy the app build from the build stage
-COPY --from=builder /app ./
+COPY --from=builder /usr/src/app ./
 
 # Expose the application port
 EXPOSE 3000

@@ -1,0 +1,16 @@
+# Caddyfile (production) — automatic HTTPS via Let's Encrypt
+api.villeto.com {
+    tls admin@villeto.com                 # set an administrative email
+    encode zstd gzip                          # response compression
+    reverse_proxy villeto:3000 {
+        # preserve original client info for your app
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+    }
+
+    log {
+        output file /data/access.log
+        format single_field common_log
+    }
+}
