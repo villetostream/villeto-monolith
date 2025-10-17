@@ -1,0 +1,8 @@
+all:
+  hosts:
+    backend:
+      ansible_host: 109.199.119.204
+      ansible_user: backend
+      ansible_become: true
+      ansible_become_method: sudo
+      ansible_python_interpreter: /usr/bin/python3

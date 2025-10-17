@@ -1,0 +1,16 @@
+- name: Install Docker + Docker Compose plugin using geerlingguy.docker
+  hosts: all
+  become: true
+
+  # Role vars: enable the Compose plugin installation via package
+  vars:
+    # ensure the role installs Docker as usual
+    docker_edition: "ce"
+
+    # Enable installing the Compose plugin (uses distro package: docker-compose-plugin)
+    docker_install_compose_plugin: true
+    docker_compose_package: docker-compose-plugin
+    docker_compose_package_state: present
+
+  roles:
+    - geerlingguy.docker
