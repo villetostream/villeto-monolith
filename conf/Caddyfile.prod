@@ -14,3 +14,12 @@ api.villeto.com {
         format single_field common_log
     }
 }
+
+# api.villeto.com {
+#    tls villetosystems@gmail.com
+#    encode zstd gzip
+#
+#    # reverse proxy to service on the Docker network
+#    reverse_proxy villeto:3000
+#
+#}

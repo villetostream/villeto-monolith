@@ -1,8 +1,17 @@
 # Caddyfile (local/dev)
-109.199.119.204 {
+http://localhost {
     tls internal
     reverse_proxy villeto:3000
     log {
         output file /data/dev-access.log
     }
 }
+
+# api.villeto.com {
+#    tls villetosystems@gmail.com
+#    encode zstd gzip
+#
+#    # reverse proxy to service on the Docker network
+#    reverse_proxy villeto:3000
+#
+#}
