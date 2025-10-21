@@ -23,10 +23,6 @@ jobs:
       context: "."
       image_name: "villeto/${{ matrix.service }}"                   # OWNER/REPO for GHCR: ghcr.io/your-org/api
       platforms: "linux/amd64,linux/arm64"
-    secrets:
-      # pass through any secrets the reusable workflow or subsequent deploy steps need
-      # GITHUB_TOKEN is passed automatically to the called workflow (but if you need a PAT, pass it)
-      GHCR_PAT: ${{ secrets.GHCR_PAT }}            # optional: if you need a PAT instead of GITHUB_TOKEN
 
   deploy:
     needs: build-and-push
