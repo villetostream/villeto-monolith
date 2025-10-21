@@ -15,7 +15,7 @@ jobs:
       matrix:
         service: [api]
     # call the reusable workflow
-    uses: ./.github/workflows/ci.yaml@main
+    uses: ./.github/workflows/ci.yaml
     with:
       # dockerfilepath: "services/api/Dockerfile"    # path in repo to the service to be built
       # context: "services/${{ matrix.service }}"
