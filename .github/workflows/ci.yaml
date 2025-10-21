@@ -2,6 +2,11 @@ name: ci
 
 on:
   push:
+    - main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   docker:
