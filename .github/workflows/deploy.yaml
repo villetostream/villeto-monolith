@@ -64,7 +64,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            rsync -avz --delete ./ ${{ steps.env.outputs.INACTIVE_ENV == 'green' && env.GREEN_DIR || env.BLUE_DIR }}
+            rsync -avz --delete ${{ github.repository }} ${{ steps.env.outputs.INACTIVE_ENV == 'green' && env.GREEN_DIR || env.BLUE_DIR }}
 
       - name: Deploy to inactive environment
         uses: appleboy/ssh-action@v1
