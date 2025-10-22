@@ -57,7 +57,7 @@ jobs:
             echo "INACTIVE_ENV=blue" >> $GITHUB_OUTPUT
           fi
 
-      - name: Test SSH connection
+      - name: Preprare VPS for deployment
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -75,8 +75,6 @@ jobs:
             # Remove all files in the inactive directory
             rm -rf $INACTIVE_DIR/*
 
-
-
       - name: Copy files and deploy to inactive environment
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -84,7 +82,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            echo ""
+            echo "Deploying to vps ..."
             # Copy files to the inactive environment using scp
             rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ${{ github.workspace }}/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
 
