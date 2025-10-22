@@ -1,7 +1,23 @@
 # Caddyfile (local/dev)
-http://localhost {
+http://localhost api.villeto.com {
     tls internal
-    reverse_proxy villeto:3000
+    tls villetosystems@gmail.com
+    encode zstd gzip
+    # /docs/* will be proxied to API, but /docs prefix is stripped before proxying
+    handle_path /api/* {
+        reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
+    }
+
+    # /worker/* -> worker service (prefix stripped)
+    handle_path /worker/* {
+        reverse_proxy http://{$UPSTREAM_WORKER}:3001
+    }
+
+    # fallback: everything else -> API (keeps path as-is)
+    handle {
+        reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
+    }
+
     log {
         output file /data/dev-access.log
     }

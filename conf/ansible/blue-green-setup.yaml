@@ -1,0 +1,24 @@
+- name: Set up the directory structure for Blue/Green deployment
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Set up the Blue/Green directories
+      ansible.builtin.file:
+        path: /opt/{{ item }}
+        state: directory
+        owner: backend
+        group: backend
+        mode: '0755'
+      register: response
+      loop:
+        - blue
+        - green
+    - name: Confirm the directories exists
+      ansible.builtin.debug:
+        msg: "Directories {{ response.results[0].path }} and {{ response.results[1].path }} exist"
+
+    - name: Set up active an environment tracking file
+      ansible.builtin.shell: echo "blue" > /opt/active_env
+      register: cmd_output
+      changed_when: cmd_output.rc != 0
