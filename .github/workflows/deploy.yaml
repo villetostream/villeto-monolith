@@ -76,6 +76,7 @@ jobs:
 
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
+            ls -l
             docker compose pull
             docker compose up -d --build
 
