@@ -57,29 +57,29 @@ jobs:
             echo "INACTIVE_ENV=blue" >> $GITHUB_OUTPUT
           fi
 
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
       - name: Copy files to inactive environment
-        uses: appleboy/ssh-action@master
+        uses: freetym/ssh-command-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
+          user: ${{ secrets.VPS_USER }}
+          command: |
             rsync -avz --delete ./ ${{ steps.env.outputs.INACTIVE_ENV == 'green' && env.GREEN_DIR || env.BLUE_DIR }}
 
       - name: Deploy to inactive environment
-        uses: appleboy/ssh-action@master
+        uses: freetym/ssh-command-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
+          user: ${{ secrets.VPS_USER }}
+          command: |
             cd ${{ steps.env.outputs.INACTIVE_ENV == 'green' && env.GREEN_DIR || env.BLUE_DIR }}
-            docker compose pull
-            docker compose up -d --build
-            # Test the new environment
+            docker-compose pull
+            docker-compose up -d --build
             curl -f http://localhost:3000/health || exit 1
-            # Switch traffic
             echo "${{ steps.env.outputs.INACTIVE_ENV }}" > /opt/active_env
             docker restart caddy
-            # Clean up old containers
             docker system prune -f
