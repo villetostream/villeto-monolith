@@ -58,7 +58,7 @@ jobs:
           fi
 
       - name: Copy files to inactive environment
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -67,7 +67,7 @@ jobs:
             rsync -avz --delete ./ ${{ steps.env.outputs.INACTIVE_ENV == 'green' && env.GREEN_DIR || env.BLUE_DIR }}
 
       - name: Deploy to inactive environment
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
