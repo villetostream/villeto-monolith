@@ -74,8 +74,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ${{ steps.env.outputs.INACTIVE_ENV == 'green' && env.GREEN_DIR || env.BLUE_DIR }}
-            docker compose -f prod-docker-compose.yaml pull
-            docker compose -f prod-docker-compose.yaml up -d --build
+            docker compose pull
+            docker compose up -d --build
             # Test the new environment
             curl -f http://localhost:3000/health || exit 1
             # Switch traffic
