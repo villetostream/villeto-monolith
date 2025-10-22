@@ -82,8 +82,8 @@ jobs:
 
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
-            docker-compose pull
-            docker-compose up -d --build
+            docker compose pull
+            docker compose up -d --build
 
             # Test the new environment
             curl -f http://${{ secrets.VPS_HOST }}:3000/health || exit 1
