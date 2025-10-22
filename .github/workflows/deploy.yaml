@@ -64,6 +64,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            echo "${{ runner.temp }}"
             # Determine the inactive environment directory
             if [ "$(cat /opt/active_env)" = "blue" ]; then
               INACTIVE_DIR="/opt/green"
@@ -78,12 +79,12 @@ jobs:
             rm -rf $INACTIVE_DIR/*
 
             # Copy files to the inactive environment using scp
-            scp -o StrictHostKeyChecking=no -r ./* ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
+            scp -o StrictHostKeyChecking=no -r ${{ github.action_repository }}/* ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
 
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
-            docker-compose pull
-            docker-compose up -d --build
+            docker compose pull
+            docker compose up -d --build
 
             # Test the new environment
             curl -f http://localhost:3000/health || exit 1
