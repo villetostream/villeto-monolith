@@ -58,19 +58,11 @@ jobs:
           fi
 
       - name: Preprare VPS for deployment
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            # Determine the inactive environment directory
-            if [ "$(cat /opt/active_env)" = "blue" ]; then
-              INACTIVE_DIR="/opt/green"
-            else
-              INACTIVE_DIR="/opt/blue"
-            fi
-            ls -la /opt
+        run: |
+          echo ${{ secrets.VPS_SSH_KEY }} > privatekey
+          chmod 400 privatekey
+          ssh -o StrictHostKeyChecking=no" ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+          ls -la /opt
 
       - name: Copy files and deploy to inactive environment
         uses: appleboy/ssh-action@v0.1.10
