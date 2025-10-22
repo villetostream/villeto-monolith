@@ -78,7 +78,7 @@ jobs:
             rm -rf $INACTIVE_DIR/*
 
             # Copy files to the inactive environment using scp
-            scp -o StrictHostKeyChecking=no -r ${{ github.workspace }}/* ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
+            scp -o StrictHostKeyChecking=no -r ${{ github.workspace }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
 
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
