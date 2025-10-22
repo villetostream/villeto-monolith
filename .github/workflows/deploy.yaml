@@ -51,18 +51,30 @@ jobs:
       - name: Determine inactive environment
         id: env
         run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }};
           if [ "$(cat /opt/active_env)" = "blue" ]; then
-            echo "INACTIVE_ENV=green" >> $GITHUB_OUTPUT
+            echo "INACTIVE_ENV=green" >> $GITHUB_OUTPUT;
           else
-            echo "INACTIVE_ENV=blue" >> $GITHUB_OUTPUT
+            echo "INACTIVE_ENV=blue" >> $GITHUB_OUTPUT;
           fi
 
-      - name: Preprare VPS for deployment
-        run: |
-          echo ${{ secrets.VPS_SSH_KEY }} > privatekey
-          chmod 400 privatekey
-          ssh -o StrictHostKeyChecking=no" ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
-          ls -la /opt
+      - name: Preprare VPS
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Determine the inactive environment directory
+            if [ "$(cat /opt/active_env)" = "blue" ]; then
+              INACTIVE_DIR="/opt/green"
+            else
+              INACTIVE_DIR="/opt/blue"
+            fi
+            # Create the directory if it doesn't exist
+            mkdir -p $INACTIVE_DIR
+            # Remove all files in the inactive directory
+            rm -rf $INACTIVE_DIR/*
 
       - name: Copy files and deploy to inactive environment
         uses: appleboy/ssh-action@v0.1.10
@@ -89,4 +101,3 @@ jobs:
 
             # Clean up old containers
             docker system prune -f
-
