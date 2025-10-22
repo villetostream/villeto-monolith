@@ -50,8 +50,17 @@ jobs:
 
       - name: Determine inactive environment
         id: env
-        run: |
-          echo "INACTIVE_ENV=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'if [ "$(cat /opt/active_env)" = "blue" ]; then echo "green"; else echo "blue"; fi')" >> $GITHUB_OUTPUT
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Determine the inactive environment
+            if [ "$(cat /opt/active_env)" = "blue" ]; then
+              echo "green" >> $GITHUB_OUTPUT;
+            else echo "blue" >> $GITHUB_OUTPUT;
+            fi
 
       - name: Preprare VPS
         uses: appleboy/ssh-action@v0.1.10
