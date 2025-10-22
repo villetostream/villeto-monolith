@@ -70,10 +70,7 @@ jobs:
             else
               INACTIVE_DIR="/opt/blue"
             fi
-            # Create the directory if it doesn't exist
-            mkdir -p $INACTIVE_DIR
-            # Remove all files in the inactive directory
-            rm -rf $INACTIVE_DIR/*
+            ls -la /opt
 
       - name: Copy files and deploy to inactive environment
         uses: appleboy/ssh-action@v0.1.10
