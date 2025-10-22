@@ -71,17 +71,19 @@ jobs:
               INACTIVE_DIR="/opt/blue"
             fi
 
+            # Create the directory if it doesn't exist
+            mkdir -p $INACTIVE_DIR
+
             # Copy files to the inactive environment
-            rsync -avz --delete ./ $INACTIVE_DIR
+            rsync -avz --delete --exclude='.git/' -e "ssh -o StrictHostKeyChecking=no" ${{ github.workspace }}/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
 
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
-            ls -l
-            docker compose pull
-            docker compose up -d --build
+            docker-compose pull
+            docker-compose up -d --build
 
             # Test the new environment
-            # curl -f http://localhost:3000/health || exit 1
+            curl -f http://localhost:3000/health || exit 1
 
             # Switch traffic
             echo "$(basename $INACTIVE_DIR)" > /opt/active_env
@@ -89,3 +91,4 @@ jobs:
 
             # Clean up old containers
             docker system prune -f
+
