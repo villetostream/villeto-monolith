@@ -6,13 +6,15 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   BLUE_DIR: /opt/blue
   GREEN_DIR: /opt/green
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+        packages: write  # Grant write permissions to packages
+        contents: read   # Grant read permissions to contents
     strategy:
       matrix:
         service:
