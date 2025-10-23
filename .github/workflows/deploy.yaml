@@ -13,33 +13,38 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    strategy:
+      matrix:
+        service:
+          - name: api-gateway
+            dockerfile: ./apps/api-gateway/Dockerfile
+            tags: |
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:blue
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:green
+          - name: worker
+            dockerfile: ./apps/worker/Dockerfile
+            tags: |
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:blue
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:green
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v4
         with:
           context: .
+          file: ${{ matrix.service.dockerfile }}
+          target: prod
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ matrix.service.tags }}
 
   deploy:
     needs: build-and-push

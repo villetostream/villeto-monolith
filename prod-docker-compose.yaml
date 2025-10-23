@@ -22,6 +22,7 @@ services:
     networks:
       - web
   api-gateway-blue:
+    image: ghcr.io/villetostream/villeto-monolith/api-gateway:blue
     build: 
       context: .
       dockerfile: ./apps/api-gateway/Dockerfile
@@ -32,7 +33,7 @@ services:
       - worker-green
     command: pnpm run start:dev api-gateway
     env_file:
-      - ./.env
+      - $PWD/../.env
     ports:
       - '3000:3000'
     volumes:
@@ -40,6 +41,7 @@ services:
     networks:
       - web
   api-gateway-green:
+    image: ghcr.io/villetostream/villeto-monolith/api-gateway:green
     build: 
       context: .
       dockerfile: ./apps/api-gateway/Dockerfile
@@ -50,7 +52,7 @@ services:
       - worker-green
     command: pnpm run start:dev api-gateway
     env_file:
-      - ./.env
+      - $PWD/../.env
     ports:
       - '3001:3000'
     volumes:
@@ -58,6 +60,7 @@ services:
     networks:
       - web
   worker-blue:
+    image: ghcr.io/villetostream/villeto-monolith/worker:blue
     build: 
       context: .
       dockerfile: ./apps/worker/Dockerfile
@@ -65,7 +68,7 @@ services:
     container_name: worker-blue
     command: pnpm run start:dev worker
     env_file:
-      - ./.env
+      - $PWD/../.env
     ports:
       - '3002:3001'
     volumes:
@@ -73,6 +76,7 @@ services:
     networks:
       - web
   worker-green:
+    image: ghcr.io/villetostream/villeto-monolith/worker:green
     build: 
       context: .
       dockerfile: ./apps/worker/Dockerfile
@@ -80,7 +84,7 @@ services:
     container_name: worker-green
     command: pnpm run start:dev worker
     env_file:
-      - ./.env
+      - $PWD/../.env
     ports:
       - '3003:3001'
     volumes:
