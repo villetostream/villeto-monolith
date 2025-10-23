@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# ansible
+.ansible/
+
 # Logs
 logs
 *.log
