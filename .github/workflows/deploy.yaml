@@ -5,28 +5,27 @@ on:
     branches: ["main"]
 
 env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
   BLUE_DIR: /opt/blue
   GREEN_DIR: /opt/green
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
     strategy:
       matrix:
         service:
           - name: api-gateway
             dockerfile: ./apps/api-gateway/Dockerfile
             tags: |
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:blue
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:green
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/api-gateway:blue
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/api-gateway:green
           - name: worker
             dockerfile: ./apps/worker/Dockerfile
             tags: |
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:blue
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:green
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:blue
+              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:green
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,7 +33,7 @@ jobs:
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
