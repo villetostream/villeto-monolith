@@ -48,37 +48,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Determine inactive environment
-        id: env
+      - name: Initialize active_env if not exists
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            if [ "$(cat /opt/active_env)" = "blue" ]; then
-              echo "INACTIVE_ENV=green" >> $GITHUB_OUTPUT
-            else
-              echo "INACTIVE_ENV=blue" >> $GITHUB_OUTPUT
+            if [ ! -f /opt/active_env ]; then
+              echo "blue" > /opt/active_env
             fi
 
-      - name: Preprare VPS
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            # Determine the inactive environment  directory
-            if [ "$(cat /opt/active_env)" = "blue" ]; then
-              INACTIVE_DIR="/opt/green"
-            else
-              INACTIVE_DIR="/opt/blue"
-            fi
-            # Create the directory if it doesn't exist
-            mkdir -p $INACTIVE_DIR
-            # Remove all files in the inactive directory
-            rm -rf $INACTIVE_DIR/*
+      - name: Determine inactive environment
+        id: set-env
+        run: |
+          # Use ssh to read /opt/active_env and determine the inactive environment
+          INACTIVE_ENV=$(ssh -o StrictHostKeyChecking=no \
+            -i <(echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r') \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            'if [ "$(cat /opt/active_env)" = "blue" ]; then echo "green"; else echo "blue"; fi')
+          echo "INACTIVE_ENV=$INACTIVE_ENV" >> $GITHUB_OUTPUT
 
       - name: Copy files and deploy to inactive environment
         uses: appleboy/ssh-action@v0.1.10
@@ -87,8 +76,15 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            echo "Deploying to vps ..."
-            # Copy files to the inactive environment using scp
+            INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
+
+            # Create the directory if it doesn't exist
+            mkdir -p $INACTIVE_DIR
+
+            # Remove all files in the inactive directory
+            rm -rf $INACTIVE_DIR/*
+
+            # Copy files to the inactive environment using rsync
             rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ${{ github.workspace }}/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
 
             # Deploy to the inactive environment
@@ -100,8 +96,9 @@ jobs:
             curl -f http://${{ secrets.VPS_HOST }}:3000/health || exit 1
 
             # Switch traffic
-            echo "$(basename $INACTIVE_DIR)" > /opt/active_env
+            echo "${{ steps.set-env.outputs.INACTIVE_ENV }}" > /opt/active_env
             docker restart caddy
 
             # Clean up old containers
             docker system prune -f
+
