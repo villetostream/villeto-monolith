@@ -5,14 +5,15 @@ on:
     branches: ["main"]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   BLUE_DIR: /opt/blue
   GREEN_DIR: /opt/green
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
     strategy:
       matrix:
         service:
