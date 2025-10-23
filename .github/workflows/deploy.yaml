@@ -61,8 +61,12 @@ jobs:
 
       - name: Test SSH Connection
         run: |
+          # Create a temporary file for the SSH key
+          echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r' > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          # Test the SSH connection
           ssh -o StrictHostKeyChecking=no \
-            -i <(echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r') \
+            -i /tmp/ssh_key \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
             'echo "SSH connection successful"'
 
