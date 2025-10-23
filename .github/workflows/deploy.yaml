@@ -93,7 +93,29 @@ jobs:
           fi
           echo "INACTIVE_ENV=$INACTIVE_ENV" >> $GITHUB_OUTPUT
 
-      - name: Copy files and deploy to inactive environment
+      - name: Prepare inactive environment
+        run: |
+          INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
+
+          # Create the directory if it doesn't exist
+          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            "mkdir -p $INACTIVE_DIR"
+
+          # Remove all files in the inactive directory
+          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            "rm -rf $INACTIVE_DIR/*"
+
+      - name: Copy files using rsync
+        run: |
+          INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
+          rsync -avz --delete \
+            -e "ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no" \
+            ${{ github.workspace }}/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
+
+      - name: Deploy to inactive environment
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -101,15 +123,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
-
-            # Create the directory if it doesn't exist
-            mkdir -p $INACTIVE_DIR
-
-            # Remove all files in the inactive directory
-            rm -rf $INACTIVE_DIR/*
-
-            # Copy files to the inactive environment using rsync
-            rsync -avz --delete -e "ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no" ${{ github.workspace }}/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
 
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
@@ -125,4 +138,3 @@ jobs:
 
             # Clean up old containers
             docker system prune -f
-
