@@ -1,32 +1,33 @@
-http://localhost {
-    # Local testing configuration
-    encode zstd gzip
-    handle {
-        reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
-    }
-    log {
-        output file /data/local-access.log
-    }
-}
+api.villeto.com {
+   tls villetosystems@gmail.com
+   encode zstd gzip
 
-https://api.villeto.com {
-    # Production configuration
-    tls villetosystems@gmail.com
-    encode zstd gzip
-    handle {
-        reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
-    }
-    log {
-        output file /data/dev-access.log
-    }
+   # reverse proxy to service on the Docker network
+   reverse_proxy villeto:3000
+
 }
 
 
-# api.villeto.com {
-#    tls villetosystems@gmail.com
-#    encode zstd gzip
-#
-#    # reverse proxy to service on the Docker network
-#    reverse_proxy villeto:3000
-#
-#}
+# http://localhost {
+#     # Local testing configuration
+#     encode zstd gzip
+#     handle {
+#         reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
+#     }
+#     log {
+#         output file /data/local-access.log
+#     }
+# }
+
+# https://api.villeto.com {
+#     # Production configuration
+#     tls villetosystems@gmail.com
+#     encode zstd gzip
+#     handle {
+#         reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
+#     }
+#     log {
+#         output file /data/dev-access.log
+#     }
+# }
+
