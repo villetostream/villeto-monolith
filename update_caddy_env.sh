@@ -14,5 +14,9 @@ fi
 export UPSTREAM_API_GATEWAY="api-gateway-$INACTIVE_ENV"
 export UPSTREAM_WORKER="worker-$INACTIVE_ENV"
 
+# Remove existing containers with the same name
+docker rm -f "worker-$INACTIVE_ENV"
+docker rm -f "api-gateway-$INACTIVE_ENV"
+
 # Restart Caddy with the new environment variables
 docker compose -f /opt/$INACTIVE_ENV/prod-docker-compose.yaml up -d --force-recreate caddy
