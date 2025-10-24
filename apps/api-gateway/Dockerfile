@@ -24,7 +24,7 @@ RUN pnpm install
 COPY . .
 
 # Build each application in the monorepo
-RUN pnpm run build:worker
+RUN pnpm run build:api-gateway
 
 # Production stage
 FROM node:22-bullseye-slim AS prod
@@ -48,4 +48,4 @@ RUN pnpm install --prod
 EXPOSE 3000
 
 # Command to run the application
-CMD ["node", "dist/apps/api-gateway/main"]
+CMD ["pnpm", "run", "start", "api-gateway"]

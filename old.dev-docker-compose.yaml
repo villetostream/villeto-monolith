@@ -22,49 +22,73 @@ services:
     networks:
       - web
   api-gateway-blue:
-    image: ghcr.io/villetostream/villetostream/villeto-monolith/api-gateway:blue
+    build: 
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: builder
     container_name: api-gateway-blue
     restart: always
     depends_on:
       - worker-blue
       - worker-green
-    env_file:
-      - $PWD/../.env
+    command: pnpm run start api-gateway
     ports:
       - '3000:3000'
+    env_file:
+      - ./.env
+    volumes:
+      - .:/usr/src/app
     networks:
       - web
+
   api-gateway-green:
-    image: ghcr.io/villetostream/villetostream/villeto-monolith/api-gateway:green
+    build: 
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: builder
     container_name: api-gateway-green
-    restart: always
+    ports:
+      - '3001:3000'
     depends_on:
       - worker-blue
       - worker-green
+    command: pnpm run start api-gateway
     env_file:
-      - $PWD/../.env
-    ports:
-      - '3001:3000'
+      - ./.env
+    volumes:
+      - .:/usr/src/app
     networks:
       - web
+
   worker-blue:
-    image: ghcr.io/villetostream/villetostream/villeto-monolith/worker:blue
+    build: 
+      context: .
+      dockerfile: ./apps/worker/Dockerfile
+      target: builder
     container_name: worker-blue
-    restart: always
-    env_file:
-      - $PWD/../.env
+    command: pnpm run start worker
     ports:
       - '3002:3001'
+    env_file:
+      - ./.env
+    volumes:
+      - .:/usr/src/app
     networks:
       - web
+
   worker-green:
-    image: ghcr.io/villetostream/villetostream/villeto-monolith/worker:green
+    build: 
+      context: .
+      dockerfile: ./apps/worker/Dockerfile
+      target: builder
     container_name: worker-green
-    restart: always
-    env_file:
-      - $PWD/../.env
+    command: pnpm run start worker
     ports:
       - '3003:3001'
+    env_file:
+      - ./.env
+    volumes:
+      - .:/usr/src/app
     networks:
       - web
 
