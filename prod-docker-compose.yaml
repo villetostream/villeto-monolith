@@ -7,8 +7,8 @@ services:
       - "80:80"     # HTTP (ACME http-01)
       - "443:443"   # HTTPS
     volumes:
-      - ./conf:/etc/caddy    # your Caddy config
-      - ./site:/srv          # serve static files from here
+      - $PWD/conf:/etc/caddy    # your Caddy config
+      - $PWD/site:/srv          # serve static files from here
       - caddy_data:/data     # certs, logs, etc (persisted)
       - caddy_config:/config # caddy internal config
     environment:
