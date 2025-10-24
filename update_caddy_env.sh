@@ -19,7 +19,7 @@ docker rm -f "worker-$INACTIVE_ENV"
 docker rm -f "api-gateway-$INACTIVE_ENV"
 
 # wait a few seconds for the removal
-slep 30
+sleep 30
 
 # Restart Caddy with the new environment variables
 docker compose -f /opt/$INACTIVE_ENV/prod-docker-compose.yaml up -d --force-recreate caddy
