@@ -1,15 +1,11 @@
-# Caddyfile (local/dev)
-http://localhost https://api.villeto.com {
+http://localhost {
     # Local testing configuration
-    tls internal
     encode zstd gzip
-
     handle {
         reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
     }
-
     log {
-        output file /data/dev-access.log
+        output file /data/local-access.log
     }
 }
 
@@ -17,15 +13,14 @@ https://api.villeto.com {
     # Production configuration
     tls villetosystems@gmail.com
     encode zstd gzip
-
     handle {
         reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
     }
-
     log {
         output file /data/dev-access.log
     }
 }
+
 
 # api.villeto.com {
 #    tls villetosystems@gmail.com

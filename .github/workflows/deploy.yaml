@@ -134,7 +134,7 @@ jobs:
             # Deploy to the inactive environment
             cd $INACTIVE_DIR
             docker compose -f prod-docker-compose.yaml pull
-            docker compose -f prod-docker-compose.yaml up -d --build --no-cache
+            docker compose -f prod-docker-compose.yaml up -d --build
 
             # Wait for services to start
             sleep 30
