@@ -43,9 +43,10 @@ COPY --from=builder /usr/src/app/pnpm-lock.yaml ./
 
 # Install production dependencies
 RUN pnpm install --prod
+RUN npm i -g @nestjs/cli
 
 # Expose the application port
 EXPOSE 3000
 
 # Command to run the application
-CMD ["pnpm", "run", "start", "api-gateway"]
+CMD ["node", "dist/apps/api-gateway/main"]
