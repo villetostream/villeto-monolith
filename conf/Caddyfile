@@ -1,6 +1,6 @@
 # Caddyfile (local/dev)
 http://localhost api.villeto.com {
-    tls internal
+    # tls internal
     tls villetosystems@gmail.com
     encode zstd gzip
     # /docs/* will be proxied to API, but /docs prefix is stripped before proxying

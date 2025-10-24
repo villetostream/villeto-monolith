@@ -5,6 +5,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { MailService } from './services/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@app/common/config/config.module';
+import { resolveTemplatesDir } from './helpers/path.helper';
 
 @Global()
 @Module({
@@ -24,7 +25,7 @@ import { ConfigModule } from '@app/common/config/config.module';
           from: `"No Reply" <${configService.get('MAIL_FROM')}>`,
         },
         template: {
-          dir: join(__dirname, 'mail', 'templates'),
+          dir: resolveTemplatesDir(),
           adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
           options: {
             strict: true,
