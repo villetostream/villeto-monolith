@@ -11,20 +11,24 @@ services:
       - ./site:/srv          # serve static files from here
       - caddy_data:/data     # certs, logs, etc (persisted)
       - caddy_config:/config # caddy internal config
+    environment:
+      - UPSTREAM_API_GATEWAY=api-gateway-blue
     depends_on:
-      - villeto
+      - api-gateway-blue
     networks:
       - web
-  villeto:
+  api-gateway-blue:
     build: 
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./apps/api-gateway/Dockerfile
       target: prod
-    container_name: villeto
+    container_name: api-gateway-blue
+    restart: always
+    command: pnpm run start api-gateway
     env_file:
       - ./.env
-    ports:
-      - '3000:3000'
+    # ports:
+    #   - '3000:3000'
     volumes:
       - .:/usr/src/app
     networks:

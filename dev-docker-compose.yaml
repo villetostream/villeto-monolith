@@ -27,62 +27,66 @@ services:
       dockerfile: ./apps/api-gateway/Dockerfile
       target: builder
     container_name: api-gateway-blue
+    restart: always
     depends_on:
       - worker-blue
       - worker-green
-    command: pnpm run start:dev api-gateway
-    env_file:
-      - ./.env
+    command: pnpm run start api-gateway
     ports:
       - '3000:3000'
+    env_file:
+      - ./.env
     volumes:
       - .:/usr/src/app
     networks:
       - web
+
   api-gateway-green:
     build: 
       context: .
       dockerfile: ./apps/api-gateway/Dockerfile
       target: builder
     container_name: api-gateway-green
+    ports:
+      - '3001:3000'
     depends_on:
       - worker-blue
       - worker-green
-    command: pnpm run start:dev api-gateway
+    command: pnpm run start api-gateway
     env_file:
       - ./.env
-    ports:
-      - '3001:3000'
     volumes:
       - .:/usr/src/app
     networks:
       - web
+
   worker-blue:
     build: 
       context: .
       dockerfile: ./apps/worker/Dockerfile
       target: builder
     container_name: worker-blue
-    command: pnpm run start:dev worker
-    env_file:
-      - ./.env
+    command: pnpm run start worker
     ports:
       - '3002:3001'
+    env_file:
+      - ./.env
     volumes:
       - .:/usr/src/app
     networks:
       - web
+
   worker-green:
     build: 
       context: .
       dockerfile: ./apps/worker/Dockerfile
       target: builder
     container_name: worker-green
-    command: pnpm run start:dev worker
-    env_file:
-      - ./.env
+    command: pnpm run start worker
     ports:
       - '3003:3001'
+    env_file:
+      - ./.env
     volumes:
       - .:/usr/src/app
     networks:

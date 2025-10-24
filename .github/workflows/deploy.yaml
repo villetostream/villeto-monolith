@@ -136,8 +136,11 @@ jobs:
             docker compose -f prod-docker-compose.yaml pull
             docker compose -f prod-docker-compose.yaml up -d --build
 
+            # Wait for services to start
+            sleep 90
+
             # Test the new environment
-            curl -f http://${{ secrets.VPS_HOST }}:3000/health || exit 1
+            curl -f http://${{ secrets.VPS_HOST }}:3000 || exit 1
 
             # Switch traffic
             echo "${{ steps.set-env.outputs.INACTIVE_ENV }}" > /opt/active_env

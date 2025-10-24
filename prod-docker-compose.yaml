@@ -28,10 +28,11 @@ services:
       dockerfile: ./apps/api-gateway/Dockerfile
       target: prod
     container_name: api-gateway-blue
+    restart: always
     depends_on:
       - worker-blue
       - worker-green
-    command: pnpm run start:prod api-gateway
+    command: pnpm run start api-gateway
     env_file:
       - $PWD/../.env
     ports:
@@ -47,10 +48,11 @@ services:
       dockerfile: ./apps/api-gateway/Dockerfile
       target: prod
     container_name: api-gateway-green
+    restart: always
     depends_on:
       - worker-blue
       - worker-green
-    command: pnpm run start:prod api-gateway
+    command: pnpm run start api-gateway
     env_file:
       - $PWD/../.env
     ports:
@@ -66,7 +68,8 @@ services:
       dockerfile: ./apps/worker/Dockerfile
       target: prod
     container_name: worker-blue
-    command: pnpm run start:prod worker
+    restart: always
+    command: pnpm run start worker
     env_file:
       - $PWD/../.env
     ports:
@@ -82,7 +85,8 @@ services:
       dockerfile: ./apps/worker/Dockerfile
       target: prod
     container_name: worker-green
-    command: pnpm run start:prod worker
+    restart: always
+    command: pnpm run start worker
     env_file:
       - $PWD/../.env
     ports:

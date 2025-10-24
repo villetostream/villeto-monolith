@@ -7,11 +7,12 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "build:worker": "nest build worker",
+    "build:api-gateway": "nest build api-gateway",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/villeto-monolith/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
