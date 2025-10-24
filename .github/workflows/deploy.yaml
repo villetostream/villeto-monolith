@@ -144,6 +144,7 @@ jobs:
 
             # Switch traffic
             echo "${{ steps.set-env.outputs.INACTIVE_ENV }}" > /opt/active_env
+            echo "Active environment is now: $(cat /opt/active_env)"
             docker restart caddy
 
             # Clean up old containers
