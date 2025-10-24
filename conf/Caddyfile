@@ -1,5 +1,5 @@
 # Caddyfile (local/dev)
-http://localhost api.villeto.com {
+http://localhost https://api.villeto.com {
     # tls internal
     tls villetosystems@gmail.com
     encode zstd gzip
