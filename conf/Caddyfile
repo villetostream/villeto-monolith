@@ -4,7 +4,7 @@ api.villeto.com {
 
    # reverse proxy to service on the Docker network
     handle {
-        reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
+        reverse_proxy {env.UPSTREAM_API_GATEWAY}:3000
     }
     log {
         output file /data/local-access.log
@@ -17,7 +17,7 @@ http://localhost {
     # Local testing configuration
     encode zstd gzip
     handle {
-        reverse_proxy http://{$UPSTREAM_API_GATEWAY}:3000
+        reverse_proxy {env.UPSTREAM_API_GATEWAY}:3000
     }
     log {
         output file /data/local-access.log
