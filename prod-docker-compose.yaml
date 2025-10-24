@@ -12,8 +12,8 @@ services:
       - caddy_data:/data     # certs, logs, etc (persisted)
       - caddy_config:/config # caddy internal config
     environment:
-      - UPSTREAM_API_GATEWAY=api-gateway-blue
-      - UPSTREAM_WORKER=worker-blue
+      - UPSTREAM_API_GATEWAY=${UPSTREAM_API_GATEWAY:-api-gateway-blue}
+      - UPSTREAM_WORKER=${UPSTREAM_WORKER:-worker-blue}
     depends_on:
       - api-gateway-blue
       - api-gateway-green
