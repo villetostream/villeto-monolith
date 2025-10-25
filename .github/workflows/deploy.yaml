@@ -147,7 +147,7 @@ jobs:
             echo "Active environment is now: $(cat /opt/active_env)"
             
             # Run the script to update Caddy's environment variables
-            bash /opt/update_caddy_env.sh
+            # bash /opt/update_caddy_env.sh
 
             # Clean up old containers
             docker system prune -f
