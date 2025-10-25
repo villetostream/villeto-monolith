@@ -21,13 +21,13 @@ jobs:
           - name: api-gateway
             dockerfile: ./apps/api-gateway/Dockerfile
             tags: |
-              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/api-gateway:blue
-              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/api-gateway:green
+              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:blue
+              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:green
           - name: worker
             dockerfile: ./apps/worker/Dockerfile
             tags: |
-              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:blue
-              ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/worker:green
+              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:blue
+              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:green
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
