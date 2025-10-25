@@ -13,5 +13,7 @@ api.villeto.com {
 http://localhost {
     encode zstd gzip
     reverse_proxy api-gateway-blue:3000
-    log { output file /data/local-access.log }
+    log {
+        output file /data/local-access.log
+    }
 }
