@@ -1,17 +1,10 @@
-localhost {
+https://api.villeto.com {
+    tls villetosystems@gmail.com
     encode zstd gzip
 
     # proxy to container by compose service name on the 'web' network
     reverse_proxy api-gateway-blue:3000
 
-    log {
-        output file /data/local-access.log
-    }
-}
-
-api.villeto.com  {
-    encode zstd gzip
-    reverse_proxy api-gateway-blue:3000
     log {
         output file /data/local-access.log
     }
