@@ -9,145 +9,114 @@ env:
   BLUE_DIR: /opt/blue
   GREEN_DIR: /opt/green
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-        packages: write  # Grant write permissions to packages
-        contents: read   # Grant read permissions to contents
     strategy:
       matrix:
         service:
           - name: api-gateway
             dockerfile: ./apps/api-gateway/Dockerfile
-            tags: |
-              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:blue
-              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:green
           - name: worker
             dockerfile: ./apps/worker/Dockerfile
-            tags: |
-              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:blue
-              ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}:green
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push (blue & green tags)
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ${{ matrix.service.dockerfile }}
           target: prod
           push: true
-          tags: ${{ matrix.service.tags }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service.name }}:blue
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service.name }}:green
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Initialize active_env if not exists
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            if [ ! -f /opt/active_env ]; then
-              echo "blue" > /opt/active_env
-            fi
-
-      - name: Create SSH key file
+      - name: Create SSH key file (for local-run diagnostics if needed)
         run: |
           echo "${{ secrets.VPS_SSH_KEY }}" | tr -d '\r' > /tmp/ssh_key
           chmod 600 /tmp/ssh_key
 
-      - name: Test SSH Connection
-        run: |
-          ssh -o StrictHostKeyChecking=no \
-            -i /tmp/ssh_key \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            'echo "SSH connection successful"'
-
-      - name: Read active_env
-        run: |
-          ACTIVE_ENV=$(ssh -o StrictHostKeyChecking=no \
-            -i /tmp/ssh_key \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            'cat /opt/active_env')
-          echo "Current active environment: $ACTIVE_ENV"
-
-      - name: Determine inactive environment
-        id: set-env
-        run: |
-          ACTIVE_ENV=$(ssh -o StrictHostKeyChecking=no \
-            -i /tmp/ssh_key \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            'cat /opt/active_env')
-          if [ "$ACTIVE_ENV" = "blue" ]; then
-            INACTIVE_ENV="green"
-          else
-            INACTIVE_ENV="blue"
-          fi
-          echo "INACTIVE_ENV=$INACTIVE_ENV" >> $GITHUB_OUTPUT
-
-      - name: Prepare inactive environment
-        run: |
-          INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
-
-          # Create the directory if it doesn't exist
-          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "mkdir -p $INACTIVE_DIR"
-
-          # Remove all files in the inactive directory
-          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "rm -rf $INACTIVE_DIR/*"
-
-      - name: Copy files using rsync
-        run: |
-          INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
-          rsync -avz --delete \
-            -e "ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no" \
-            ${{ github.workspace }}/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$INACTIVE_DIR
-
-      - name: Deploy to inactive environment
+      - name: Deploy to inactive environment and test (with GHCR login)
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            INACTIVE_DIR="/opt/${{ steps.set-env.outputs.INACTIVE_ENV }}"
+            set -euo pipefail
 
-            # Deploy to the inactive environment
-            cd $INACTIVE_DIR
-            docker compose -f prod-docker-compose.yaml pull
-            docker compose -f prod-docker-compose.yaml up -d --build
+            # Ensure active_env exists
+            if [ ! -f /opt/active_env ]; then
+              echo "blue" > /opt/active_env
+            fi
+            ACTIVE_ENV=$(cat /opt/active_env)
+            if [ "$ACTIVE_ENV" = "blue" ]; then
+              INACTIVE_ENV="green"
+            else
+              INACTIVE_ENV="blue"
+            fi
 
-            # Wait for services to start
-            sleep 30
+            echo "Active env: $ACTIVE_ENV"
+            echo "Deploying to inactive env: $INACTIVE_ENV"
 
-            # Test the new environment
-            curl -f http://${{ secrets.VPS_HOST }}:3000/health; echo "" || exit 1
+            INACTIVE_DIR="/opt/${INACTIVE_ENV}"
+            COMPOSE_FILE="${INACTIVE_DIR}/prod-docker-compose.yaml"
 
-            # Switch traffic
-            echo "${{ steps.set-env.outputs.INACTIVE_ENV }}" > /opt/active_env
-            echo "Active environment is now: $(cat /opt/active_env)"
-            
-            # Run the script to update Caddy's environment variables
-            # bash /opt/update_caddy_env.sh
+            if [ ! -f "$COMPOSE_FILE" ]; then
+              echo "Compose file not found: $COMPOSE_FILE" >&2
+              exit 2
+            fi
 
-            # Clean up old containers
-            docker system prune -f
+            # Login to GHCR so we can pull private images
+            echo "Logging into GHCR..."
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+
+            # Pull images declared in the compose
+            echo "Pulling images for ${INACTIVE_ENV}..."
+            docker compose -f "$COMPOSE_FILE" pull
+
+            # Start services (do NOT build)
+            echo "Starting services for ${INACTIVE_ENV}..."
+            docker compose -f "$COMPOSE_FILE" up -d
+
+            # Wait for containers to initialize
+            sleep 10
+
+            # In-network health check
+            echo "Running in-network health check for api-gateway-${INACTIVE_ENV}..."
+            docker run --rm --network web curlimages/curl:8 \
+              curl -sSf "http://api-gateway-${INACTIVE_ENV}:3000/health" || (echo "api-gateway health check failed" && exit 1)
+
+            # Flip active env
+            echo "${INACTIVE_ENV}" > /opt/active_env
+            echo "Active environment flipped to: $(cat /opt/active_env)"
+
+            # Reload Caddy to point at new env (script should validate & reload)
+            if [ -x /opt/update_caddy_env.sh ]; then
+              /opt/update_caddy_env.sh
+            else
+              echo "/opt/update_caddy_env.sh not found or executable" >&2
+            fi
+
+            # Optional prune (use with caution)
+            docker system prune -f || true
+
+
