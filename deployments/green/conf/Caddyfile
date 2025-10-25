@@ -1,0 +1,24 @@
+{
+    # Global options
+    # Set an ACME contact email (used by Let's Encrypt).
+    email villetosystems@gmail.com
+}
+
+api.villeto.com {
+    encode zstd gzip
+
+    # Proxy all requests to the green API gateway
+    reverse_proxy api-gateway-green:3000 {
+        header_up X-Real-IP {http.request.remote.host}
+    }
+
+    log {
+        output file /data/local-access.log {
+            roll_size 5mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+}
+

@@ -1,0 +1,33 @@
+services:
+
+  api-gateway-green:
+    image: ghcr.io/villetostream/api-gateway:green
+    container_name: api-gateway-green
+    restart: always
+    depends_on:
+      - worker-green
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - $PWD/../.env
+    ports:
+      - '3001:3000'
+    networks:
+      - web
+
+  worker-green:
+    image: ghcr.io/villetostream/worker:green
+    container_name: worker-green
+    restart: always
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - $PWD/../.env
+    ports:
+      - '3003:3001'
+    networks:
+      - web
+
+networks:
+  web:
+    external: true

@@ -1,0 +1,27 @@
+{
+    # Global options
+    # Set an ACME contact email (used by Let's Encrypt).
+    email villetosystems@gmail.com
+}
+
+api.villeto.com {
+    encode zstd gzip
+
+    # Proxy all requests to the blue API gateway
+    reverse_proxy api-gateway-blue:3000 {
+        # pass client IP (no port)
+        header_up X-Real-IP {http.request.remote.host}
+        # Host and standard X-Forwarded-* headers are forwarded by default
+    }
+
+    # Rotated JSON access log written to the caddy data volume (/data inside container)
+    log {
+        output file /data/local-access.log {
+            roll_size 5mb
+            roll_keep 5
+            roll_keep_for 720h
+        }
+        format json
+    }
+}
+

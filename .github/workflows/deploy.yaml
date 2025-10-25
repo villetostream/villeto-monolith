@@ -95,7 +95,7 @@ jobs:
 
             # Start services (do NOT build)
             echo "Starting services for ${INACTIVE_ENV}..."
-            docker compose -f "$COMPOSE_FILE" up -d
+            docker compose -f "$COMPOSE_FILE" up -d --no-build
 
             # Wait for containers to initialize
             sleep 10
