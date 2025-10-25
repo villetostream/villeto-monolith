@@ -1,42 +1,14 @@
 {
 	# Global options
-	# Automatic HTTPS will be enabled for any site blocks below.
-	# Set your account email for ACME recovery notifications.
 	email villetosystems@gmail.com
-
-	# Optional: tune ACME (default Let's Encrypt v2). Leave default unless you need staging.
-	# acme_ca https://acme-v02.api.letsencrypt.org/directory
 }
 
-# Primary site — do NOT include "https://" here; Caddy handles HTTP and HTTPS automatically.
 api.villeto.com {
 	# Compression
 	encode zstd gzip
 
-	# Health check path proxied directly to upstream (optional)
-	handle_path /health* {
-		reverse_proxy api-gateway-blue:3000 {
-			transport http {
-				# keepalive pooling to the upstream container
-				keepalive 32
-			}
-			header_up Host {http.request.host}
-			header_up X-Real-IP {http.request.remote}
-			header_up X-Forwarded-For {http.request.remote}
-			header_up X-Forwarded-Proto {http.request.scheme}
-		}
-	}
-
-	# Main proxy: send everything else to the api-gateway service on the 'web' network
-	reverse_proxy * api-gateway-blue:3000 {
-		transport http {
-			# tuning; adjust if you expect very long responses
-			read_buffer 4096
-			keepalive 32
-			# If your upstream uses HTTPS internally and you want to trust it, set tls options here.
-			# tls_insecure_skip_verify false
-		}
-
+	# Proxy everything to the upstream service on Docker network 'web'
+	reverse_proxy api-gateway-blue:3000 {
 		# Preserve original host and forwarding headers for your app
 		header_up Host {http.request.host}
 		header_up X-Real-IP {http.request.remote}
@@ -46,7 +18,7 @@ api.villeto.com {
 		header_up X-Forwarded-Server {env.HOSTNAME}
 	}
 
-	# Logging (writes to the container volume /data which is persisted)
+	# Logging (rotated)
 	log {
 		output file /data/local-access.log {
 			roll_size 5mb
@@ -55,7 +27,4 @@ api.villeto.com {
 		}
 		format json
 	}
-
-	# Optional: respond to/.well-known/acme-challenge (Caddy does this automatically),
-	# but keep other handlers minimal so ACME challenges are served properly.
 }
