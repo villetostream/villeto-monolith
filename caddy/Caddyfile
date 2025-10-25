@@ -1,4 +1,4 @@
-https://api.villeto.com {
+localhost {
     tls villetosystems@gmail.com
     encode zstd gzip
 
@@ -11,6 +11,7 @@ https://api.villeto.com {
 }
 
 http://localhost {
+    tls villetosystems@gmail.com
     encode zstd gzip
     reverse_proxy api-gateway-blue:3000
     log {
