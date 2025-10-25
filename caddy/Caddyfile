@@ -1,5 +1,4 @@
 localhost {
-    tls villetosystems@gmail.com
     encode zstd gzip
 
     # proxy to container by compose service name on the 'web' network
@@ -10,8 +9,7 @@ localhost {
     }
 }
 
-http://localhost {
-    tls villetosystems@gmail.com
+api.villeto.com  {
     encode zstd gzip
     reverse_proxy api-gateway-blue:3000
     log {
