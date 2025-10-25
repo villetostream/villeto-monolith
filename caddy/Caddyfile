@@ -1,4 +1,4 @@
-api.villeto.com {
+https://api.villeto.com {
     tls villetosystems@gmail.com
     encode zstd gzip
 
