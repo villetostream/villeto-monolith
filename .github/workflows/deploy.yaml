@@ -140,7 +140,7 @@ jobs:
             sleep 30
 
             # Test the new environment
-            curl -f http://${{ secrets.VPS_HOST }}:3000; echo "" || exit 1
+            curl -f http://${{ secrets.VPS_HOST }}:3000/health; echo "" || exit 1
 
             # Switch traffic
             echo "${{ steps.set-env.outputs.INACTIVE_ENV }}" > /opt/active_env
